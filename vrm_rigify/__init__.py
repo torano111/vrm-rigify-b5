@@ -253,6 +253,15 @@ def attach_unmapped_vrm_model_bones_to_rig(rig_object: bpy.types.Object, vrm_obj
                 collection.assign(bone_in_rig)
 
 
+def copy_idprop_group(source, dest):
+    """Recursively copy IDPropertyGroup contents."""
+    for key, value in source.items():
+        try:
+            dest[key] = value
+        except TypeError:
+            copy_idprop_group(value, dest[key])
+
+
 # Enables use of the blend shape proxy and expressions panel from the VRM addon.
 def copy_shape_key_controls_from_vrm_armature(rig_object: bpy.types.Object, vrm_object: bpy.types.Object):
     armature_rig: bpy.types.Armature = rig_object.data
@@ -260,7 +269,7 @@ def copy_shape_key_controls_from_vrm_armature(rig_object: bpy.types.Object, vrm_
     blend_shape_master = armature_vrm.vrm_addon_extension.vrm0["blend_shape_master"]
     armature_rig.vrm_addon_extension.vrm0["blend_shape_master"] = blend_shape_master
     expressions = armature_vrm.vrm_addon_extension.vrm1["expressions"]
-    armature_rig.vrm_addon_extension.vrm1["expressions"] = expressions
+    copy_idprop_group(expressions, armature_rig.vrm_addon_extension.vrm1["expressions"])
 
 
 def disable_ik_stretching(rig_object: bpy.types.Object):
